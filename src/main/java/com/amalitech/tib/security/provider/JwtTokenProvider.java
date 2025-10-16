@@ -74,31 +74,6 @@ public class JwtTokenProvider {
         return parseClaims(token).getSubject();
     }
 
-    public Claims getAllClaims(String token) {
-        if (token == null || token.isBlank()) {
-            throw new IllegalArgumentException("JWT token cannot be null or blank");
-        }
-
-        try {
-            return Jwts.parserBuilder()
-                    .setSigningKey(key)
-                    .build()
-                    .parseClaimsJws(token)
-                    .getBody();
-
-        } catch (ExpiredJwtException e) {
-            throw new JwtException("JWT token has expired", e);
-        } catch (UnsupportedJwtException e) {
-            throw new JwtException("JWT token format not supported", e);
-        } catch (MalformedJwtException e) {
-            throw new JwtException("Malformed JWT token", e);
-        } catch (SecurityException e) {
-            throw new JwtException("Invalid JWT signature", e);
-        } catch (IllegalArgumentException e) {
-            throw new JwtException("Empty or null JWT string", e);
-        }
-    }
-
     public boolean validateToken(String token) {
         try {
             Claims claims = parseClaims(token);

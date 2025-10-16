@@ -8,7 +8,6 @@ import org.springframework.security.core.AuthenticationException;
 import org.springframework.web.bind.MethodArgumentNotValidException;
 import org.springframework.web.bind.annotation.ExceptionHandler;
 import org.springframework.web.bind.annotation.RestControllerAdvice;
-import org.springframework.web.context.request.WebRequest;
 
 import java.util.HashMap;
 import java.util.List;
@@ -48,6 +47,20 @@ public class GlobalExceptionHandler {
     public ResponseEntity<ApiResponse<String>> handleResourceNotFoundException(ResourceNotFoundException ex) {
         ApiResponse<String> errorResponse = ApiResponse.error(ex.getMessage());
         return new ResponseEntity<>(errorResponse, HttpStatus.NOT_FOUND);
+    }
+
+    // NEW: Handle invalid JWTs or refresh tokens
+    @ExceptionHandler(InvalidTokenException.class)
+    public ResponseEntity<ApiResponse<String>> handleInvalidTokenException(InvalidTokenException ex) {
+        ApiResponse<String> errorResponse = ApiResponse.error(ex.getMessage());
+        return new ResponseEntity<>(errorResponse, HttpStatus.UNAUTHORIZED);
+    }
+
+    // NEW: Handle revoked refresh tokens
+    @ExceptionHandler(RefreshTokenRevokedException.class)
+    public ResponseEntity<ApiResponse<String>> handleRefreshTokenRevokedException(RefreshTokenRevokedException ex) {
+        ApiResponse<String> errorResponse = ApiResponse.error(ex.getMessage());
+        return new ResponseEntity<>(errorResponse, HttpStatus.UNAUTHORIZED);
     }
 
     @ExceptionHandler(Exception.class)

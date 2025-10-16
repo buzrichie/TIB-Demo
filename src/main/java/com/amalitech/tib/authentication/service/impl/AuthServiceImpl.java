@@ -8,6 +8,8 @@ import com.amalitech.tib.authentication.repository.RefreshTokenRepository;
 import com.amalitech.tib.authentication.service.AuthService;
 import com.amalitech.tib.authentication.service.TokenBlacklistService;
 import com.amalitech.tib.exception.EmailAlreadyExistException;
+import com.amalitech.tib.exception.InvalidTokenException;
+import com.amalitech.tib.exception.ResourceNotFoundException;
 import com.amalitech.tib.mapper.UserMapper;
 import com.amalitech.tib.role.model.Role;
 import com.amalitech.tib.role.repository.RoleRepository;
@@ -45,7 +47,7 @@ public class AuthServiceImpl implements AuthService {
         checkForExistingData(request);
 
         Role defaultRole = roleRepository.findByName("USER")
-                .orElseThrow(() -> new RuntimeException("Default role 'USER' not found"));
+                .orElseThrow(() -> new ResourceNotFoundException("Default role 'USER' not found"));
 
         User user = userMapper.fromRegisterRequest(request);
         user.setPassword(passwordEncoder.encode(request.password()));
@@ -73,10 +75,10 @@ public class AuthServiceImpl implements AuthService {
     @Transactional
     public AuthResponse login(LoginRequest request) {
         User user = userRepository.findByEmail(request.email())
-                .orElseThrow(() -> new RuntimeException("Invalid email or password"));
+                .orElseThrow(() -> new ResourceNotFoundException("Invalid email or password"));
 
         if (!passwordEncoder.matches(request.password(), user.getPassword())) {
-            throw new RuntimeException("Invalid email or password");
+            throw new InvalidTokenException("Invalid email or password");
         }
 
         String accessToken = jwtTokenProvider.generateAccessToken(String.valueOf(user.getId()));
@@ -108,14 +110,14 @@ public class AuthServiceImpl implements AuthService {
         String header = request.getHeader("Authorization");
 
         if (header == null || !header.startsWith("Bearer ")) {
-            throw new RuntimeException("Missing or invalid Authorization header");
+            throw new InvalidTokenException("Missing or invalid Authorization header");
         }
 
         String token = header.substring(7);
 
         String userId = jwtTokenProvider.getSubject(token);
         if (userId == null) {
-            throw new RuntimeException("Invalid token: missing subject");
+            throw new InvalidTokenException("Invalid token: missing subject");
         }
 
         if (tokenBlacklistService.isTokenBlacklisted(token)) {
@@ -126,7 +128,6 @@ public class AuthServiceImpl implements AuthService {
             if (!refreshToken.getIsRevoked()) {
                 refreshToken.setIsRevoked(true);
                 refreshTokenRepository.save(refreshToken);
-                log.info("Refresh token revoked for user {}", userId);
             }
         });
 
@@ -141,29 +142,29 @@ public class AuthServiceImpl implements AuthService {
     public AuthResponse refreshAccessToken(HttpServletRequest request) {
         String header = request.getHeader("Authorization");
         if (header == null || !header.startsWith("Bearer ")) {
-            throw new RuntimeException("Missing or invalid Authorization header");
+            throw new InvalidTokenException("Missing or invalid Authorization header");
         }
 
         String oldAccessToken = header.substring(7);
 
         if (tokenBlacklistService.isTokenBlacklisted(oldAccessToken)) {
-            throw new RuntimeException("Access token is blacklisted — please log in again");
+            throw new InvalidTokenException("Access token is blacklisted — please log in again");
         }
 
         String userId = jwtTokenProvider.getSubject(oldAccessToken);
         if (userId == null) {
-            throw new RuntimeException("Invalid access token");
+            throw new InvalidTokenException("Invalid access token");
         }
 
         RefreshToken refreshToken = refreshTokenRepository.findByUserId(UUID.fromString(userId))
-                .orElseThrow(() -> new RuntimeException("No refresh token found for this user"));
+                .orElseThrow(() -> new InvalidTokenException("No refresh token found for this user"));
 
         if (refreshToken.getIsRevoked()) {
-            throw new RuntimeException("Refresh token has been revoked — please log in again");
+            throw new InvalidTokenException("Refresh token has been revoked — please log in again");
         }
 
         if (!jwtTokenProvider.validateToken(refreshToken.getToken())) {
-            throw new RuntimeException("Refresh token expired — please log in again");
+            throw new InvalidTokenException("Refresh token expired — please log in again");
         }
 
         String newAccessToken = jwtTokenProvider.generateAccessToken(userId);

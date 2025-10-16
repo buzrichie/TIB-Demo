@@ -2,6 +2,7 @@ package com.amalitech.tib.security.filter;
 
 
 import com.amalitech.tib.authentication.service.TokenBlacklistService;
+import com.amalitech.tib.exception.InvalidTokenException;
 import com.amalitech.tib.security.CustomUserDetailsService;
 import com.amalitech.tib.security.provider.JwtTokenProvider;
 import io.jsonwebtoken.ExpiredJwtException;
@@ -38,25 +39,25 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
             String header = request.getHeader("Authorization");
             if (header == null || !header.startsWith("Bearer ")) {
                 filterChain.doFilter(request, response);
-                return;
+                throw new InvalidTokenException("Missing or invalid Authorization header");
             }
 
             String token = header.substring(7);
 
             if (!jwtTokenProvider.validateToken(token)) {
                 filterChain.doFilter(request, response);
-                return;
+                throw new InvalidTokenException("Invalid token");
             }
 
             if (tokenBlacklistService.isTokenBlacklisted(token)) {
                 filterChain.doFilter(request, response);
-                return;
+                throw new InvalidTokenException("Token has been blacklisted");
             }
 
             String userId = jwtTokenProvider.getSubject(token);
             if (userId == null) {
                 filterChain.doFilter(request, response);
-                return;
+                throw new InvalidTokenException("Invalid token: missing subject");
             }
 
             var userDetails = customUserDetailsService.loadUserById(userId);
