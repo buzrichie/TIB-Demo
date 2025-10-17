@@ -94,9 +94,8 @@ public class AuthServiceImpl implements AuthService {
                 )
         );
 
-        UserDto userDto = getUserDto(authentication);
-
-        User user = userMapper.toEntity(userDto);
+        UserDetailsImpl userDetails = (UserDetailsImpl) authentication.getPrincipal();
+        User user =  userDetails.getUser();
 
         String accessToken = generateAccessTokenForUser(user);
         String refreshTokenValue = jwtTokenProvider.generateRefreshToken(user.getId().toString());
@@ -115,26 +114,9 @@ public class AuthServiceImpl implements AuthService {
         user.setLastActive(Instant.now());
         userRepository.save(user);
 
-        return new AuthResponse(accessToken, "Bearer", userDto);
-    }
+        UserDto userDto = userMapper.toDto(user);
 
-    private static UserDto getUserDto(Authentication authentication) {
-        UserDetailsImpl userDetails = (UserDetailsImpl) authentication.getPrincipal();
-        UserDto userDto = new UserDto(
-                userDetails.getId(),
-                userDetails.getUsername(),
-                userDetails.getUser().getEmail(),
-                userDetails.getUser().getStatus(),
-                userDetails.getUser().getLastActive(),
-                userDetails.getUser().getNote(),
-                userDetails.getUser().getDefaultRole(),
-                userDetails.getUser().getRoles(),
-                userDetails.getUser().getCreatedTrips(),
-                userDetails.getUser().getNotifications(),
-                userDetails.getUser().getGeneralSettings(),
-                userDetails.getUser().getAccountPreferences()
-        );
-        return userDto;
+        return new AuthResponse(accessToken, "Bearer", userDto);
     }
 
     @Override
@@ -183,7 +165,6 @@ public class AuthServiceImpl implements AuthService {
         return new AuthResponse(newAccessToken, "Bearer", userDto);
     }
 
-    // 🧩 Helper method to extract roles/permissions and generate access token
     private String generateAccessTokenForUser(User user) {
         List<String> roles = user.getEffectiveRoles().stream()
                 .map(role -> role.getName().toUpperCase())
