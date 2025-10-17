@@ -21,16 +21,13 @@ public class UserDetailsImpl implements UserDetails {
     public Collection<? extends GrantedAuthority> getAuthorities() {
         Set<GrantedAuthority> authorities = new HashSet<>();
 
-        // Get all effective roles (assigned + default)
         Set<Role> effectiveRoles = user.getEffectiveRoles();
 
         for (Role role : effectiveRoles) {
-            // Add role as an authority (Spring Security expects 'ROLE_' prefix)
             if (role != null && role.getName() != null) {
                 authorities.add(new SimpleGrantedAuthority("ROLE_" + role.getName()));
             }
 
-            // Add permissions attached to the role
             if (role != null && role.getPermissions() != null) {
                 for (Permission permission : role.getPermissions()) {
                     authorities.add(new SimpleGrantedAuthority(permission.name()));
