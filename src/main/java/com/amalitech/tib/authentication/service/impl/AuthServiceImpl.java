@@ -13,6 +13,7 @@ import com.amalitech.tib.exception.ResourceNotFoundException;
 import com.amalitech.tib.mapper.UserMapper;
 import com.amalitech.tib.role.model.Role;
 import com.amalitech.tib.role.repository.RoleRepository;
+import com.amalitech.tib.security.CustomUserDetailsService;
 import com.amalitech.tib.security.provider.JwtTokenProvider;
 import com.amalitech.tib.user.UserRepository;
 import com.amalitech.tib.user.dto.UserDto;
@@ -22,17 +23,22 @@ import jakarta.servlet.http.HttpServletRequest;
 import jakarta.transaction.Transactional;
 import lombok.AllArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.security.authentication.AuthenticationManager;
+import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
+import org.springframework.security.core.Authentication;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 
 import java.time.Instant;
+import java.util.List;
 import java.util.UUID;
 
 @Slf4j
 @Service
 @AllArgsConstructor
 public class AuthServiceImpl implements AuthService {
+
     private final UserMapper userMapper;
     private final PasswordEncoder passwordEncoder;
     private final UserRepository userRepository;
@@ -40,6 +46,8 @@ public class AuthServiceImpl implements AuthService {
     private final JwtTokenProvider jwtTokenProvider;
     private final RefreshTokenRepository refreshTokenRepository;
     private final TokenBlacklistService tokenBlacklistService;
+    private final AuthenticationManager authenticationManager;
+    private final CustomUserDetailsService customUserDetailsService;
 
     @Override
     @Transactional
@@ -58,8 +66,8 @@ public class AuthServiceImpl implements AuthService {
 
         User savedUser = userRepository.save(user);
 
-        String accessToken = jwtTokenProvider.generateAccessToken(String.valueOf(savedUser.getId()));
-        String refreshTokenValue = jwtTokenProvider.generateRefreshToken(String.valueOf(savedUser.getId()));
+        String accessToken = generateAccessTokenForUser(savedUser);
+        String refreshTokenValue = jwtTokenProvider.generateRefreshToken(savedUser.getId().toString());
 
         RefreshToken refreshToken = new RefreshToken();
         refreshToken.setUser(savedUser);
@@ -74,15 +82,19 @@ public class AuthServiceImpl implements AuthService {
     @Override
     @Transactional
     public AuthResponse login(LoginRequest request) {
-        User user = userRepository.findByEmail(request.email())
-                .orElseThrow(() -> new ResourceNotFoundException("Invalid email or password"));
+        Authentication authentication = authenticationManager.authenticate(
+                new UsernamePasswordAuthenticationToken(
+                        request.email(),
+                        request.password()
+                )
+        );
 
-        if (!passwordEncoder.matches(request.password(), user.getPassword())) {
-            throw new InvalidTokenException("Invalid email or password");
-        }
+        User user = userRepository.findById(UUID.fromString(authentication.getName()))
+                .orElseThrow(() -> new RuntimeException("User not found after authentication"));
 
-        String accessToken = jwtTokenProvider.generateAccessToken(String.valueOf(user.getId()));
-        String refreshTokenValue = jwtTokenProvider.generateRefreshToken(String.valueOf(user.getId()));
+
+        String accessToken = generateAccessTokenForUser(user);
+        String refreshTokenValue = jwtTokenProvider.generateRefreshToken(user.getId().toString());
 
         RefreshToken refreshToken = refreshTokenRepository.findByUserId(user.getId())
                 .orElseGet(() -> {
@@ -95,12 +107,10 @@ public class AuthServiceImpl implements AuthService {
         refreshToken.setIsRevoked(false);
         refreshTokenRepository.save(refreshToken);
 
-
         user.setLastActive(Instant.now());
         userRepository.save(user);
 
         UserDto userDto = userMapper.toDto(user);
-
         return new AuthResponse(accessToken, "Bearer", userDto);
     }
 
@@ -109,12 +119,13 @@ public class AuthServiceImpl implements AuthService {
     public void logout(HttpServletRequest request) {
         String token = validateAccessToken(request);
 
-        refreshTokenRepository.findByUserId(UUID.fromString(jwtTokenProvider.getSubject(token))).ifPresent(refreshToken -> {
-            if (!refreshToken.getIsRevoked()) {
-                refreshToken.setIsRevoked(true);
-                refreshTokenRepository.save(refreshToken);
-            }
-        });
+        refreshTokenRepository.findByUserId(UUID.fromString(jwtTokenProvider.getSubject(token)))
+                .ifPresent(refreshToken -> {
+                    if (!refreshToken.getIsRevoked()) {
+                        refreshToken.setIsRevoked(true);
+                        refreshTokenRepository.save(refreshToken);
+                    }
+                });
 
         Instant tokenExpiry = jwtTokenProvider.getExpiration(token);
         tokenBlacklistService.blacklistToken(token, tokenExpiry, "logout");
@@ -139,15 +150,33 @@ public class AuthServiceImpl implements AuthService {
             throw new InvalidTokenException("Refresh token expired — please log in again");
         }
 
-        String newAccessToken = jwtTokenProvider.generateAccessToken(userId);
-
         User user = refreshToken.getUser();
-        UserDto userDto = userMapper.toDto(user);
+        String newAccessToken = generateAccessTokenForUser(user);
 
         Instant expiry = jwtTokenProvider.getExpiration(oldAccessToken);
         tokenBlacklistService.blacklistToken(oldAccessToken, expiry, "refreshed");
 
+        UserDto userDto = userMapper.toDto(user);
         return new AuthResponse(newAccessToken, "Bearer", userDto);
+    }
+
+    // 🧩 Helper method to extract roles/permissions and generate access token
+    private String generateAccessTokenForUser(User user) {
+        List<String> roles = user.getEffectiveRoles().stream()
+                .map(role -> role.getName().toUpperCase())
+                .toList();
+
+        List<String> permissions = user.getEffectiveRoles().stream()
+                .flatMap(role -> role.getPermissions().stream())
+                .map(Enum::name)
+                .toList();
+
+        return jwtTokenProvider.generateAccessToken(
+                user.getId().toString(),
+                user.getEmail(),
+                roles,
+                permissions
+        );
     }
 
     private String validateAccessToken(HttpServletRequest request) {
@@ -170,9 +199,8 @@ public class AuthServiceImpl implements AuthService {
         return token;
     }
 
-
     private void checkForExistingData(RegisterRequest request) {
-        if(userRepository.existsByEmail(request.email())){
+        if (userRepository.existsByEmail(request.email())) {
             throw new EmailAlreadyExistException("Email already exists");
         }
     }

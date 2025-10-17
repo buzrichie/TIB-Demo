@@ -12,12 +12,15 @@ import jakarta.servlet.http.HttpServletResponse;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
+import org.springframework.security.core.authority.SimpleGrantedAuthority;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.security.web.authentication.WebAuthenticationDetailsSource;
 import org.springframework.stereotype.Component;
 import org.springframework.web.filter.OncePerRequestFilter;
 
 import java.io.IOException;
+import java.util.HashSet;
+import java.util.List;
 
 @Slf4j
 @Component
@@ -25,7 +28,6 @@ import java.io.IOException;
 public class JwtAuthenticationFilter extends OncePerRequestFilter {
 
     private final JwtTokenProvider jwtTokenProvider;
-    private final CustomUserDetailsService customUserDetailsService;
     private final TokenBlacklistService tokenBlacklistService;
 
     @Override
@@ -43,29 +45,22 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
 
             String token = header.substring(7);
 
-            if (!jwtTokenProvider.validateToken(token)) {
-                filterChain.doFilter(request, response);
-                return;
-            }
-
-            if (tokenBlacklistService.isTokenBlacklisted(token)) {
+            if (!jwtTokenProvider.validateToken(token) || tokenBlacklistService.isTokenBlacklisted(token)) {
                 filterChain.doFilter(request, response);
                 return;
             }
 
             String userId = jwtTokenProvider.getSubject(token);
-            if (userId == null) {
-                filterChain.doFilter(request, response);
-                return;
-            }
+            String email = jwtTokenProvider.getEmail(token);
+            List<String> roles = jwtTokenProvider.getRoles(token);
+            List<String> permissions = jwtTokenProvider.getPermissions(token);
 
-            var userDetails = customUserDetailsService.loadUserById(userId);
+            var authorities = new HashSet<SimpleGrantedAuthority>();
+            roles.forEach(role -> authorities.add(new SimpleGrantedAuthority("ROLE_" + role)));
+            permissions.forEach(p -> authorities.add(new SimpleGrantedAuthority(p)));
 
-            var authentication = new UsernamePasswordAuthenticationToken(
-                    userDetails, null, userDetails.getAuthorities()
-            );
+            var authentication = new UsernamePasswordAuthenticationToken(email, null, authorities);
             authentication.setDetails(new WebAuthenticationDetailsSource().buildDetails(request));
-
             SecurityContextHolder.getContext().setAuthentication(authentication);
 
         } catch (ExpiredJwtException ex) {
@@ -76,4 +71,5 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
 
         filterChain.doFilter(request, response);
     }
+
 }

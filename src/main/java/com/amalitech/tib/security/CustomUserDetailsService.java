@@ -20,7 +20,7 @@ public class CustomUserDetailsService implements UserDetailsService {
 
     @Override
     public UserDetails loadUserByUsername(String username) throws UsernameNotFoundException {
-        User user = userRepository.findById(UUID.fromString(username))
+        User user = userRepository.findByEmail(username)
                 .orElseThrow(() -> new UsernameNotFoundException("User not found with username: " + username));
         return new UserDetailsImpl(user);
     }
@@ -29,6 +29,11 @@ public class CustomUserDetailsService implements UserDetailsService {
         User user = userRepository.findById(UUID.fromString(id))
                 .orElseThrow(() -> new UsernameNotFoundException("User not found with ID: " + id));
         return new UserDetailsImpl(user);
+    }
+
+    public User getUser(String email) {
+        return userRepository.findByEmail(email)
+                .orElseThrow(() -> new UsernameNotFoundException("User not found with email: " + email));
     }
 }
 

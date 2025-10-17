@@ -9,20 +9,10 @@ import org.springframework.stereotype.Component;
 import java.nio.charset.StandardCharsets;
 import java.security.Key;
 import java.time.Instant;
-import java.time.LocalDateTime;
-import java.time.ZoneId;
-import java.util.Date;
-import java.util.List;
-import java.util.Map;
+import java.util.*;
 
-/**
- * JwtTokenProvider handles creation, validation, and parsing of JWT tokens.
- * It supports both access and refresh token generation with configurable lifetimes.
- */
 @Component
 public class JwtTokenProvider {
-
-    private static final String CLAIM_ROLES = "roles";
 
     @Value("${jwt.secret}")
     private String secret;
@@ -37,15 +27,16 @@ public class JwtTokenProvider {
 
     @PostConstruct
     public void init() {
-        // Generate a secure HMAC key from the secret
         this.key = Keys.hmacShaKeyFor(secret.getBytes(StandardCharsets.UTF_8));
     }
 
-    public String generateAccessToken(String userId) {
-        return generateToken(userId, null, accessTokenExpiration);
-    }
+    // ✅ Generate Access Token with claims
+    public String generateAccessToken(String userId, String email, List<String> roles, List<String> permissions) {
+        Map<String, Object> claims = new HashMap<>();
+        claims.put("roles", roles);
+        claims.put("permissions", permissions);
+        claims.put("email", email);
 
-    public String generateAccessToken(String userId, Map<String, Object> claims) {
         return generateToken(userId, claims, accessTokenExpiration);
     }
 
@@ -62,6 +53,7 @@ public class JwtTokenProvider {
                 .setIssuedAt(now)
                 .setExpiration(expiry)
                 .signWith(key, SignatureAlgorithm.HS256);
+
         if (claims != null && !claims.isEmpty()) {
             builder.addClaims(claims);
         }
@@ -69,27 +61,16 @@ public class JwtTokenProvider {
         return builder.compact();
     }
 
-
-    public String getSubject(String token) {
-        return parseClaims(token).getSubject();
-    }
-
     public boolean validateToken(String token) {
         try {
-            Claims claims = parseClaims(token);
-            return !isTokenExpired(claims);
+            parseClaims(token);
+            return true;
         } catch (JwtException e) {
             return false;
         }
     }
 
-
-    private boolean isTokenExpired(Claims claims) {
-        Date expiration = claims.getExpiration();
-        return expiration != null && expiration.before(new Date());
-    }
-
-    private Claims parseClaims(String token) {
+    public Claims parseClaims(String token) {
         return Jwts.parserBuilder()
                 .setSigningKey(key)
                 .build()
@@ -97,14 +78,31 @@ public class JwtTokenProvider {
                 .getBody();
     }
 
-    public Instant getExpiration(String token) {
-        Claims claims = Jwts.parserBuilder()
-                .setSigningKey(key)
-                .build()
-                .parseClaimsJws(token)
-                .getBody();
-
-        return claims.getExpiration().toInstant();
+    public String getSubject(String token) {
+        return parseClaims(token).getSubject();
     }
 
+    public List<String> getRoles(String token) {
+        Object roles = parseClaims(token).get("roles");
+        if (roles instanceof List<?> list) {
+            return list.stream().map(String::valueOf).toList();
+        }
+        return List.of();
+    }
+
+    public List<String> getPermissions(String token) {
+        Object permissions = parseClaims(token).get("permissions");
+        if (permissions instanceof List<?> list) {
+            return list.stream().map(String::valueOf).toList();
+        }
+        return List.of();
+    }
+
+    public String getEmail(String token) {
+        return (String) parseClaims(token).get("email");
+    }
+
+    public Instant getExpiration(String token) {
+        return parseClaims(token).getExpiration().toInstant();
+    }
 }
