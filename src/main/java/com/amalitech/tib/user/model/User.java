@@ -37,17 +37,11 @@ public class User extends BaseEntity {
     @Lob
     private String note;
 
-    /**
-     * Default role that user always retains (fallback)
-     */
+
     @ManyToOne(fetch = FetchType.EAGER)
     @JoinColumn(name = "default_role_id")
     private Role defaultRole;
 
-    /**
-     * Additional roles assigned to the user.
-     * Use @ManyToMany instead of @OneToMany to avoid duplicate role entities.
-     */
     @ManyToMany(fetch = FetchType.EAGER)
     @JoinTable(
             name = "user_roles",
@@ -68,10 +62,6 @@ public class User extends BaseEntity {
     @OneToOne(mappedBy = "user", cascade = CascadeType.ALL, fetch = FetchType.LAZY)
     private AccountPreferences accountPreferences;
 
-    /**
-     * Convenience method that ensures the user always has their default role,
-     * even if custom roles are lost.
-     */
     public Set<Role> getEffectiveRoles() {
         Set<Role> effective = new HashSet<>(roles);
         if (defaultRole != null) {
