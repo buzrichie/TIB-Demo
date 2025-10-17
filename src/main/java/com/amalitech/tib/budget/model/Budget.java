@@ -1,7 +1,6 @@
 package com.amalitech.tib.budget.model;
 
-import com.amalitech.tib.expense.model.Expense;
-import com.amalitech.tib.shared.BaseEntity;
+import com.amalitech.tib.shared.util.BaseEntity;
 import com.amalitech.tib.trip.model.Trip;
 import jakarta.persistence.*;
 import lombok.Data;

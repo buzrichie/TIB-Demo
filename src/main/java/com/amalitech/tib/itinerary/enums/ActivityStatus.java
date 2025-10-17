@@ -1,4 +1,4 @@
-package com.amalitech.tib.itinerary.model.enums;
+package com.amalitech.tib.itinerary.enums;
 
 public enum ActivityStatus {
     PLANNED,

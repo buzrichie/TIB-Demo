@@ -1,14 +1,13 @@
 package com.amalitech.tib.trip.model;
 
-import com.amalitech.tib.accommodation.model.Accommodation;
+import com.amalitech.tib.booking.model.Accommodation;
 import com.amalitech.tib.budget.model.Budget;
 import com.amalitech.tib.destination.model.Destination;
 import com.amalitech.tib.itinerary.model.Itinerary;
-import com.amalitech.tib.shared.BaseEntity;
-import com.amalitech.tib.transport.model.Transport;
-import com.amalitech.tib.traveler.model.Traveler;
+import com.amalitech.tib.shared.util.BaseEntity;
+import com.amalitech.tib.itinerary.model.Transport;
 import com.amalitech.tib.trip.enums.TripStatus;
-import com.amalitech.tib.user.model.User;
+import com.amalitech.tib.authentication.user.model.User;
 import jakarta.persistence.*;
 import lombok.Data;
 

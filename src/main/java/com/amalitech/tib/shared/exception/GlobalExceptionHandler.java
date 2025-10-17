@@ -1,6 +1,6 @@
-package com.amalitech.tib.exception;
+package com.amalitech.tib.shared.exception;
 
-import com.amalitech.tib.util.ApiResponse;
+import com.amalitech.tib.shared.util.ApiResponse;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.AccessDeniedException;

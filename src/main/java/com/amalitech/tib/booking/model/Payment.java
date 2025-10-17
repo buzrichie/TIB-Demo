@@ -1,10 +1,9 @@
-package com.amalitech.tib.payment.model;
+package com.amalitech.tib.booking.model;
 
-import com.amalitech.tib.booking.model.Booking;
-import com.amalitech.tib.payment.enums.PaymentMethod;
-import com.amalitech.tib.payment.enums.PaymentStatus;
+import com.amalitech.tib.booking.enums.PaymentMethod;
+import com.amalitech.tib.booking.enums.PaymentStatus;
 
-import com.amalitech.tib.util.BaseEntity;
+import com.amalitech.tib.shared.util.BaseEntity;
 import jakarta.persistence.*;
 import lombok.Data;
 

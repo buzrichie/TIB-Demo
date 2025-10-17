@@ -1,4 +1,4 @@
-package com.amalitech.tib.authentication.dto;
+package com.amalitech.tib.authentication.auth.dto;
 
 import jakarta.validation.constraints.Email;
 import jakarta.validation.constraints.NotBlank;

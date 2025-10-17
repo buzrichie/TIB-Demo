@@ -1,11 +1,11 @@
-package com.amalitech.tib.itinerary.model.model;
+package com.amalitech.tib.itinerary.model;
 
-import com.amalitech.tib.util.BaseEntity;
+import com.amalitech.tib.shared.util.BaseEntity;
 import jakarta.persistence.*;
 import lombok.Data;
 
 import java.time.LocalTime;
-import com.amalitech.tib.itinerary.model.enums.ActivityStatus;
+import com.amalitech.tib.itinerary.enums.ActivityStatus;
 import com.amalitech.tib.destination.model.Attraction;
 
 

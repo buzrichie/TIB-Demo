@@ -1,4 +1,4 @@
-package com.amalitech.tib.security;
+package com.amalitech.tib.authentication.security;
 
 import com.amalitech.tib.shared.util.ApiResponse;
 import com.fasterxml.jackson.databind.ObjectMapper;

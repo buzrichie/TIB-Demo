@@ -1,6 +1,6 @@
-package com.amalitech.tib.user.repository;
+package com.amalitech.tib.authentication.user.repository;
 
-import com.amalitech.tib.user.model.User;
+import com.amalitech.tib.authentication.user.model.User;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.repository.query.Param;

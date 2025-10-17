@@ -1,4 +1,4 @@
-package com.amalitech.tib.authentication.model;
+package com.amalitech.tib.authentication.auth.model;
 
 import com.amalitech.tib.shared.util.BaseEntity;
 import com.amalitech.tib.authentication.user.model.User;

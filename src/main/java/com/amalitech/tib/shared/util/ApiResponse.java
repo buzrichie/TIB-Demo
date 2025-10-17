@@ -1,4 +1,4 @@
-package com.amalitech.tib.util;
+package com.amalitech.tib.shared.util;
 
 import com.fasterxml.jackson.annotation.JsonInclude;
 import com.fasterxml.jackson.annotation.JsonProperty;

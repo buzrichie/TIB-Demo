@@ -1,9 +1,7 @@
 package com.amalitech.tib.booking.model;
 
-import com.amalitech.tib.accommodation.model.Accommodation;
-import com.amalitech.tib.payment.model.Payment;
-import com.amalitech.tib.shared.BaseEntity;
-import com.amalitech.tib.traveler.model.Traveler;
+import com.amalitech.tib.shared.util.BaseEntity;
+import com.amalitech.tib.trip.model.Traveler;
 
 import jakarta.persistence.*;
 import lombok.Data;

@@ -1,7 +1,6 @@
-package com.amalitech.tib.category.model;
+package com.amalitech.tib.destination.model;
 
-import com.amalitech.tib.destination.model.Attraction;
-import com.amalitech.tib.util.BaseEntity;
+import com.amalitech.tib.shared.util.BaseEntity;
 import jakarta.persistence.*;
 import lombok.Data;
 

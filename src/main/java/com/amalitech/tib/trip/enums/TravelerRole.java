@@ -1,4 +1,4 @@
-package com.amalitech.tib.traveler.enums;
+package com.amalitech.tib.trip.enums;
 
 public enum TravelerRole {
     OWNER,

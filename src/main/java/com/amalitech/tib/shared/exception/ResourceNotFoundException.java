@@ -1,4 +1,4 @@
-package com.amalitech.tib.exception;
+package com.amalitech.tib.shared.exception;
 
 /**
  * Custom exception for resource not found

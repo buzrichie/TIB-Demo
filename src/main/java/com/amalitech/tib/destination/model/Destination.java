@@ -1,8 +1,7 @@
 package com.amalitech.tib.destination.model;
 
-import com.amalitech.tib.attraction.model.Attraction;
 import com.amalitech.tib.destination.enums.DestinationStatus;
-import com.amalitech.tib.shared.BaseEntity;
+import com.amalitech.tib.shared.util.BaseEntity;
 import com.amalitech.tib.trip.model.Trip;
 import jakarta.persistence.*;
 import lombok.Data;

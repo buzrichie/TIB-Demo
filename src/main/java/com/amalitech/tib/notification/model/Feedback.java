@@ -1,7 +1,7 @@
-package com.amalitech.tib.feedback.model;
+package com.amalitech.tib.notification.model;
 
-import com.amalitech.tib.util.BaseEntity;
-import com.amalitech.tib.traveler.model.Traveler;
+import com.amalitech.tib.shared.util.BaseEntity;
+import com.amalitech.tib.trip.model.Traveler;
 import com.amalitech.tib.trip.model.Trip;
 import jakarta.persistence.*;
 import lombok.Data;

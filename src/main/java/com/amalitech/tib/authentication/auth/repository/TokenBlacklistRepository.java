@@ -1,6 +1,6 @@
-package com.amalitech.tib.authentication.repository;
+package com.amalitech.tib.authentication.auth.repository;
 
-import com.amalitech.tib.authentication.model.TokenBlacklist;
+import com.amalitech.tib.authentication.auth.model.TokenBlacklist;
 import org.springframework.data.jpa.repository.JpaRepository;
 
 import java.util.Optional;

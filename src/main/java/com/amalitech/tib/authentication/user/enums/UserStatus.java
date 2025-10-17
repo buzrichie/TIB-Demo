@@ -1,4 +1,4 @@
-package com.amalitech.tib.user.enums;
+package com.amalitech.tib.authentication.user.enums;
 
 public enum UserStatus {
     ACTIVE,

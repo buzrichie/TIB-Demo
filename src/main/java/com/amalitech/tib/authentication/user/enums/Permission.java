@@ -1,4 +1,4 @@
-package com.amalitech.tib.permission.model;
+package com.amalitech.tib.authentication.user.enums;
 
 
 public enum Permission{

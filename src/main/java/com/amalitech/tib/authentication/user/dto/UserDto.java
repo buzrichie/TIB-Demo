@@ -1,11 +1,11 @@
-package com.amalitech.tib.user.dto;
+package com.amalitech.tib.authentication.user.dto;
 
-import com.amalitech.tib.user.model.AccountPreferences;
+import com.amalitech.tib.authentication.user.model.AccountPreferences;
 import com.amalitech.tib.admin.model.GeneralSettings;
 import com.amalitech.tib.notification.model.Notification;
-import com.amalitech.tib.user.model.Role;
+import com.amalitech.tib.authentication.user.model.Role;
 import com.amalitech.tib.trip.model.Trip;
-import com.amalitech.tib.user.enums.UserStatus;
+import com.amalitech.tib.authentication.user.enums.UserStatus;
 
 import java.time.Instant;
 import java.util.Set;

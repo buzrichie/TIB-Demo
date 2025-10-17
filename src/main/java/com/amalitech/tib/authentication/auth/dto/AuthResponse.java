@@ -1,4 +1,4 @@
-package com.amalitech.tib.authentication.dto;
+package com.amalitech.tib.authentication.auth.dto;
 
 import com.amalitech.tib.authentication.user.dto.UserDto;
 

@@ -1,13 +1,11 @@
-package com.amalitech.tib.attraction.model;
+package com.amalitech.tib.destination.model;
 
-import com.amalitech.tib.util.BaseEntity;
+import com.amalitech.tib.shared.util.BaseEntity;
 import jakarta.persistence.*;
 import lombok.Data;
 
-import com.amalitech.tib.attraction.enums.AttractionStatus;
-import com.amalitech.tib.destination.model.Destination;
-import com.amalitech.tib.activity.model.Activity;
-import com.amalitech.tib.category.model.Category;
+import com.amalitech.tib.destination.enums.AttractionStatus;
+import com.amalitech.tib.itinerary.model.Activity;
 
 import java.math.BigDecimal;
 import java.util.Set;

@@ -1,6 +1,6 @@
-package com.amalitech.tib.user.repository;
+package com.amalitech.tib.authentication.user.repository;
 
-import com.amalitech.tib.user.model.Role;
+import com.amalitech.tib.authentication.user.model.Role;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.stereotype.Repository;
 

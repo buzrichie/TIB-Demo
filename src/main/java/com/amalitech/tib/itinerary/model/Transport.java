@@ -1,7 +1,7 @@
-package com.amalitech.tib.transport.model;
+package com.amalitech.tib.itinerary.model;
 
-import com.amalitech.tib.util.BaseEntity;
-import com.amalitech.tib.transport.enums.TransportType;
+import com.amalitech.tib.shared.util.BaseEntity;
+import com.amalitech.tib.itinerary.enums.TransportType;
 import com.amalitech.tib.trip.model.Trip;
 import jakarta.persistence.*;
 import lombok.Data;

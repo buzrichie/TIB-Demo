@@ -1,9 +1,9 @@
-package com.amalitech.tib.authentication.controller;
+package com.amalitech.tib.authentication.auth.controller;
 
-import com.amalitech.tib.authentication.dto.AuthResponse;
-import com.amalitech.tib.authentication.dto.LoginRequest;
-import com.amalitech.tib.authentication.dto.RegisterRequest;
-import com.amalitech.tib.authentication.service.AuthService;
+import com.amalitech.tib.authentication.auth.dto.AuthResponse;
+import com.amalitech.tib.authentication.auth.dto.LoginRequest;
+import com.amalitech.tib.authentication.auth.dto.RegisterRequest;
+import com.amalitech.tib.authentication.auth.service.AuthService;
 import com.amalitech.tib.shared.util.ApiResponse;
 import io.swagger.v3.oas.annotations.Operation;
 import jakarta.servlet.http.HttpServletRequest;

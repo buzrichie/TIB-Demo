@@ -1,7 +1,7 @@
-package com.amalitech.tib.user.mapper;
+package com.amalitech.tib.authentication.user.mapper;
 
-import com.amalitech.tib.user.dto.CreateRoleDto;
-import com.amalitech.tib.user.model.Role;
+import com.amalitech.tib.authentication.user.dto.CreateRoleDto;
+import com.amalitech.tib.authentication.user.model.Role;
 import org.mapstruct.Mapper;
 
 @Mapper(componentModel = "spring")

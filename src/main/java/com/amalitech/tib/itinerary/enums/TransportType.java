@@ -1,4 +1,4 @@
-package com.amalitech.tib.transport.enums;
+package com.amalitech.tib.itinerary.enums;
 
 public enum TransportType {
     FLIGHT,

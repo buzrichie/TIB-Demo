@@ -1,8 +1,8 @@
-package com.amalitech.tib.authentication.service;
+package com.amalitech.tib.authentication.auth.service;
 
 
-import com.amalitech.tib.authentication.model.TokenBlacklist;
-import com.amalitech.tib.authentication.repository.TokenBlacklistRepository;
+import com.amalitech.tib.authentication.auth.model.TokenBlacklist;
+import com.amalitech.tib.authentication.auth.repository.TokenBlacklistRepository;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 

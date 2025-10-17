@@ -1,11 +1,10 @@
-package com.amalitech.tib.traveler.model;
+package com.amalitech.tib.trip.model;
 
 import com.amalitech.tib.booking.model.Booking;
 import com.amalitech.tib.notification.model.Feedback;
-import com.amalitech.tib.util.BaseEntity;
-import com.amalitech.tib.traveler.enums.TravelerRole;
-import com.amalitech.tib.trip.model.Trip;
-import com.amalitech.tib.user.model.User;
+import com.amalitech.tib.shared.util.BaseEntity;
+import com.amalitech.tib.trip.enums.TravelerRole;
+import com.amalitech.tib.authentication.user.model.User;
 import jakarta.persistence.*;
 import lombok.Data;
 

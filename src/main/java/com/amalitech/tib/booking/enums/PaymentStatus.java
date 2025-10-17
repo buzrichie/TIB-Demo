@@ -1,4 +1,4 @@
-package com.amalitech.tib.payment.enums;
+package com.amalitech.tib.booking.enums;
 
 public enum PaymentStatus {
     PENDING,

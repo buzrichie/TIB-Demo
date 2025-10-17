@@ -1,4 +1,4 @@
-package com.amalitech.tib.security;
+package com.amalitech.tib.authentication.security;
 
 import com.amalitech.tib.authentication.user.repository.UserRepository;
 import com.amalitech.tib.authentication.user.model.User;

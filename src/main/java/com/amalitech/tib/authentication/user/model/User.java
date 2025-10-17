@@ -1,10 +1,10 @@
-package com.amalitech.tib.user.model;
+package com.amalitech.tib.authentication.user.model;
 
 import com.amalitech.tib.admin.model.GeneralSettings;
 import com.amalitech.tib.notification.model.Notification;
-import com.amalitech.tib.util.BaseEntity;
+import com.amalitech.tib.shared.util.BaseEntity;
 import com.amalitech.tib.trip.model.Trip;
-import com.amalitech.tib.user.enums.UserStatus;
+import com.amalitech.tib.authentication.user.enums.UserStatus;
 import jakarta.persistence.*;
 import lombok.Data;
 import lombok.EqualsAndHashCode;

@@ -1,4 +1,4 @@
-package com.amalitech.tib.util;
+package com.amalitech.tib.shared.util;
 
 import jakarta.persistence.*;
 import java.time.Instant;

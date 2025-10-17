@@ -1,4 +1,4 @@
-package com.amalitech.tib.security.provider;
+package com.amalitech.tib.authentication.security.provider;
 
 import io.jsonwebtoken.*;
 import io.jsonwebtoken.security.Keys;

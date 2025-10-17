@@ -1,8 +1,8 @@
-package com.amalitech.tib.mapper;
+package com.amalitech.tib.authentication.user.mapper;
 
-import com.amalitech.tib.authentication.dto.RegisterRequest;
-import com.amalitech.tib.user.dto.UserDto;
-import com.amalitech.tib.user.model.User;
+import com.amalitech.tib.authentication.auth.dto.RegisterRequest;
+import com.amalitech.tib.authentication.user.dto.UserDto;
+import com.amalitech.tib.authentication.user.model.User;
 import org.mapstruct.Mapper;
 
 @Mapper(componentModel = "spring")

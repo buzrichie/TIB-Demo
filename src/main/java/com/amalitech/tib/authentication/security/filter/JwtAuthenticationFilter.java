@@ -1,9 +1,8 @@
-package com.amalitech.tib.security.filter;
+package com.amalitech.tib.authentication.security.filter;
 
 
-import com.amalitech.tib.authentication.service.TokenBlacklistService;
-import com.amalitech.tib.security.CustomUserDetailsService;
-import com.amalitech.tib.security.provider.JwtTokenProvider;
+import com.amalitech.tib.authentication.auth.service.TokenBlacklistService;
+import com.amalitech.tib.authentication.security.provider.JwtTokenProvider;
 import io.jsonwebtoken.ExpiredJwtException;
 import jakarta.servlet.FilterChain;
 import jakarta.servlet.ServletException;
