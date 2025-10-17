@@ -107,24 +107,9 @@ public class AuthServiceImpl implements AuthService {
     @Override
     @Transactional
     public void logout(HttpServletRequest request) {
-        String header = request.getHeader("Authorization");
+        String token = validateAccessToken(request);
 
-        if (header == null || !header.startsWith("Bearer ")) {
-            throw new InvalidTokenException("Missing or invalid Authorization header");
-        }
-
-        String token = header.substring(7);
-
-        String userId = jwtTokenProvider.getSubject(token);
-        if (userId == null) {
-            throw new InvalidTokenException("Invalid token: missing subject");
-        }
-
-        if (tokenBlacklistService.isTokenBlacklisted(token)) {
-            return;
-        }
-
-        refreshTokenRepository.findByUserId(UUID.fromString(userId)).ifPresent(refreshToken -> {
+        refreshTokenRepository.findByUserId(UUID.fromString(jwtTokenProvider.getSubject(token))).ifPresent(refreshToken -> {
             if (!refreshToken.getIsRevoked()) {
                 refreshToken.setIsRevoked(true);
                 refreshTokenRepository.save(refreshToken);
@@ -140,22 +125,9 @@ public class AuthServiceImpl implements AuthService {
     @Override
     @Transactional
     public AuthResponse refreshAccessToken(HttpServletRequest request) {
-        String header = request.getHeader("Authorization");
-        if (header == null || !header.startsWith("Bearer ")) {
-            throw new InvalidTokenException("Missing or invalid Authorization header");
-        }
-
-        String oldAccessToken = header.substring(7);
-
-        if (tokenBlacklistService.isTokenBlacklisted(oldAccessToken)) {
-            throw new InvalidTokenException("Access token is blacklisted — please log in again");
-        }
+        String oldAccessToken = validateAccessToken(request);
 
         String userId = jwtTokenProvider.getSubject(oldAccessToken);
-        if (userId == null) {
-            throw new InvalidTokenException("Invalid access token");
-        }
-
         RefreshToken refreshToken = refreshTokenRepository.findByUserId(UUID.fromString(userId))
                 .orElseThrow(() -> new InvalidTokenException("No refresh token found for this user"));
 
@@ -177,6 +149,27 @@ public class AuthServiceImpl implements AuthService {
 
         return new AuthResponse(newAccessToken, "Bearer", userDto);
     }
+
+    private String validateAccessToken(HttpServletRequest request) {
+        String header = request.getHeader("Authorization");
+        if (header == null || !header.startsWith("Bearer ")) {
+            throw new InvalidTokenException("Missing or invalid Authorization header");
+        }
+
+        String token = header.substring(7);
+
+        if (tokenBlacklistService.isTokenBlacklisted(token)) {
+            throw new InvalidTokenException("Access token is blacklisted — please log in again");
+        }
+
+        String userId = jwtTokenProvider.getSubject(token);
+        if (userId == null) {
+            throw new InvalidTokenException("Invalid access token");
+        }
+
+        return token;
+    }
+
 
     private void checkForExistingData(RegisterRequest request) {
         if(userRepository.existsByEmail(request.email())){
