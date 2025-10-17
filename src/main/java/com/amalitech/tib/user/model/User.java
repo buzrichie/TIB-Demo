@@ -56,6 +56,9 @@ public class User extends BaseEntity {
     @OneToMany(mappedBy = "user")
     private Set<Notification> notifications;
 
+    @Column(name = "profile_image_url")
+    private String profile_image_url;
+
     @OneToOne(mappedBy = "user", cascade = CascadeType.ALL, fetch = FetchType.LAZY)
     private GeneralSettings generalSettings;
 
