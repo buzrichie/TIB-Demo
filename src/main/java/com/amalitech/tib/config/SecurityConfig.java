@@ -1,9 +1,12 @@
 package com.amalitech.tib.config;
 
 
+import com.amalitech.tib.security.AppAccessDeniedHandler;
 import com.amalitech.tib.security.JwtAuthenticationEntryPoint;
 import com.amalitech.tib.security.filter.JwtAuthenticationFilter;
 import lombok.AllArgsConstructor;
+import lombok.NoArgsConstructor;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.http.HttpMethod;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
@@ -20,6 +23,7 @@ import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.security.web.SecurityFilterChain;
 import org.springframework.security.web.authentication.UsernamePasswordAuthenticationFilter;
 import org.springframework.web.cors.CorsConfiguration;
+import org.springframework.web.cors.CorsConfigurationSource;
 
 import java.util.List;
 
@@ -29,21 +33,18 @@ import java.util.List;
 @AllArgsConstructor
 public class SecurityConfig {
 
-    private JwtAuthenticationFilter jwtAuthenticationFilter;
+    private final JwtAuthenticationFilter jwtAuthenticationFilter;
     private final JwtAuthenticationEntryPoint jwtAuthenticationEntryPoint;
+    private final AppAccessDeniedHandler accessDeniedHandler;
+    private final CorsConfigurationSource corsConfigurationSource;
+
     @Bean
     public SecurityFilterChain securityFilterChain(HttpSecurity http
                                                    ) throws Exception {
         http
 
                 .csrf(AbstractHttpConfigurer::disable)
-                .cors(cors -> cors.configurationSource(request -> {
-                    CorsConfiguration configuration = new CorsConfiguration();
-                    configuration.setAllowedMethods(List.of("Get", "Post", "Put", "Delete", "Patch"));
-                    configuration.setAllowedHeaders(List.of("Authorization", "Cache-Control", "Content-Type"));
-                    configuration.setAllowCredentials(true);
-                    return configuration;
-                }))
+                .cors(cors -> cors.configurationSource(corsConfigurationSource))
                 .authorizeHttpRequests(auth -> auth
                         .requestMatchers(HttpMethod.POST, "/api/v1/user/security/change-password").authenticated()
                         .requestMatchers(
@@ -60,6 +61,8 @@ public class SecurityConfig {
                 .addFilterBefore(jwtAuthenticationFilter, UsernamePasswordAuthenticationFilter.class)
                 .exceptionHandling(exception ->
                         exception.authenticationEntryPoint(jwtAuthenticationEntryPoint)
+                                .accessDeniedHandler(accessDeniedHandler)
+
                 )
                 .httpBasic(Customizer.withDefaults());
 

@@ -17,6 +17,8 @@ spring:
 
 app:
   base-url: ${BASE_URL}
-
+  cors:
+    allowed-origins: ${ALLOWED_ORIGINS}
 jwt:
   secret: ${JWT_SECRET}
+
