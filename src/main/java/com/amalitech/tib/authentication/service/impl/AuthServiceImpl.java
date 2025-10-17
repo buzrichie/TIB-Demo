@@ -1,5 +1,6 @@
 package com.amalitech.tib.authentication.service.impl;
 
+import com.amalitech.tib.accountpreferences.model.AccountPreferences;
 import com.amalitech.tib.authentication.dto.AuthResponse;
 import com.amalitech.tib.authentication.dto.LoginRequest;
 import com.amalitech.tib.authentication.dto.RegisterRequest;
@@ -10,11 +11,15 @@ import com.amalitech.tib.authentication.service.TokenBlacklistService;
 import com.amalitech.tib.exception.EmailAlreadyExistException;
 import com.amalitech.tib.exception.InvalidTokenException;
 import com.amalitech.tib.exception.ResourceNotFoundException;
+import com.amalitech.tib.generalsettings.model.GeneralSettings;
 import com.amalitech.tib.mapper.UserMapper;
+import com.amalitech.tib.notification.model.Notification;
 import com.amalitech.tib.role.model.Role;
 import com.amalitech.tib.role.repository.RoleRepository;
 import com.amalitech.tib.security.CustomUserDetailsService;
+import com.amalitech.tib.security.UserDetailsImpl;
 import com.amalitech.tib.security.provider.JwtTokenProvider;
+import com.amalitech.tib.trip.model.Trip;
 import com.amalitech.tib.user.UserRepository;
 import com.amalitech.tib.user.dto.UserDto;
 import com.amalitech.tib.user.enums.UserStatus;
@@ -89,9 +94,9 @@ public class AuthServiceImpl implements AuthService {
                 )
         );
 
-        User user = userRepository.findById(UUID.fromString(authentication.getName()))
-                .orElseThrow(() -> new RuntimeException("User not found after authentication"));
+        UserDto userDto = getUserDto(authentication);
 
+        User user = userMapper.toEntity(userDto);
 
         String accessToken = generateAccessTokenForUser(user);
         String refreshTokenValue = jwtTokenProvider.generateRefreshToken(user.getId().toString());
@@ -110,8 +115,26 @@ public class AuthServiceImpl implements AuthService {
         user.setLastActive(Instant.now());
         userRepository.save(user);
 
-        UserDto userDto = userMapper.toDto(user);
         return new AuthResponse(accessToken, "Bearer", userDto);
+    }
+
+    private static UserDto getUserDto(Authentication authentication) {
+        UserDetailsImpl userDetails = (UserDetailsImpl) authentication.getPrincipal();
+        UserDto userDto = new UserDto(
+                userDetails.getId(),
+                userDetails.getUsername(),
+                userDetails.getUser().getEmail(),
+                userDetails.getUser().getStatus(),
+                userDetails.getUser().getLastActive(),
+                userDetails.getUser().getNote(),
+                userDetails.getUser().getDefaultRole(),
+                userDetails.getUser().getRoles(),
+                userDetails.getUser().getCreatedTrips(),
+                userDetails.getUser().getNotifications(),
+                userDetails.getUser().getGeneralSettings(),
+                userDetails.getUser().getAccountPreferences()
+        );
+        return userDto;
     }
 
     @Override

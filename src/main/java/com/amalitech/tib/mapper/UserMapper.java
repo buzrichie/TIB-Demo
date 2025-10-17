@@ -10,4 +10,5 @@ public interface UserMapper {
     User fromRegisterRequest(RegisterRequest request);
 
     UserDto toDto(User savedUser);
+    User toEntity(UserDto savedUser);
 }
