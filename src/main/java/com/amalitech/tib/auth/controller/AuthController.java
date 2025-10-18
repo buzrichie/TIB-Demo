@@ -2,6 +2,7 @@ package com.amalitech.tib.auth.controller;
 
 import com.amalitech.tib.auth.dto.AuthResponse;
 import com.amalitech.tib.auth.dto.LoginRequest;
+import com.amalitech.tib.auth.dto.RefreshResponse;
 import com.amalitech.tib.auth.dto.RegisterRequest;
 import com.amalitech.tib.auth.service.AuthService;
 import com.amalitech.tib.shared.util.ApiResponse;
@@ -57,8 +58,8 @@ public class AuthController {
             description = "Generates a new access token using the server-stored refresh token for the authenticated user."
     )
     @PostMapping("/refresh-token")
-    public ResponseEntity<ApiResponse<AuthResponse>> refreshAccessToken(HttpServletRequest request) {
-        AuthResponse response = authService.refreshAccessToken(request);
+    public ResponseEntity<ApiResponse<RefreshResponse>> refreshAccessToken(HttpServletRequest request) {
+        RefreshResponse response = authService.refreshAccessToken(request);
         return ResponseEntity.ok(ApiResponse.success(response, "Access token refreshed successfully"));
     }
 

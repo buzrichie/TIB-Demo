@@ -1,15 +1,11 @@
 package com.amalitech.tib.auth.service.impl;
 
-import com.amalitech.tib.auth.dto.AuthResponse;
-import com.amalitech.tib.auth.dto.LoginRequest;
-import com.amalitech.tib.auth.dto.RegisterRequest;
+import com.amalitech.tib.auth.dto.*;
 import com.amalitech.tib.auth.model.RefreshToken;
 import com.amalitech.tib.auth.repository.RefreshTokenRepository;
 import com.amalitech.tib.auth.service.AuthService;
 import com.amalitech.tib.auth.service.TokenBlacklistService;
-import com.amalitech.tib.shared.exception.EmailAlreadyExistException;
-import com.amalitech.tib.shared.exception.InvalidTokenException;
-import com.amalitech.tib.shared.exception.ResourceNotFoundException;
+import com.amalitech.tib.shared.exception.*;
 import com.amalitech.tib.auth.mapper.UserMapper;
 import com.amalitech.tib.auth.model.Role;
 import com.amalitech.tib.auth.repository.RoleRepository;
@@ -17,7 +13,6 @@ import com.amalitech.tib.auth.security.CustomUserDetailsService;
 import com.amalitech.tib.auth.security.UserDetailsImpl;
 import com.amalitech.tib.auth.security.provider.JwtTokenProvider;
 import com.amalitech.tib.auth.repository.UserRepository;
-import com.amalitech.tib.auth.dto.UserDto;
 import com.amalitech.tib.auth.enums.UserStatus;
 import com.amalitech.tib.auth.model.User;
 import jakarta.servlet.http.HttpServletRequest;
@@ -25,6 +20,7 @@ import jakarta.transaction.Transactional;
 import lombok.AllArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.security.authentication.AuthenticationManager;
+import org.springframework.security.authentication.BadCredentialsException;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.context.SecurityContextHolder;
@@ -136,7 +132,7 @@ public class AuthServiceImpl implements AuthService {
 
     @Override
     @Transactional
-    public AuthResponse refreshAccessToken(HttpServletRequest request) {
+    public RefreshResponse refreshAccessToken(HttpServletRequest request) {
         String oldAccessToken = validateAccessToken(request);
 
         String userId = jwtTokenProvider.getSubject(oldAccessToken);
@@ -157,8 +153,7 @@ public class AuthServiceImpl implements AuthService {
         Instant expiry = jwtTokenProvider.getExpiration(oldAccessToken);
         tokenBlacklistService.blacklistToken(oldAccessToken, expiry, "refreshed");
 
-        UserDto userDto = userMapper.toDto(user);
-        return new AuthResponse(newAccessToken, "Bearer", userDto);
+        return new RefreshResponse(newAccessToken, "Bearer");
     }
 
     private String generateAccessTokenForUser(User user) {
@@ -182,18 +177,18 @@ public class AuthServiceImpl implements AuthService {
     private String validateAccessToken(HttpServletRequest request) {
         String header = request.getHeader("Authorization");
         if (header == null || !header.startsWith("Bearer ")) {
-            throw new InvalidTokenException("Missing or invalid Authorization header");
+            throw new RefreshTokenRequiredException("Token is required");
         }
 
         String token = header.substring(7);
 
         if (tokenBlacklistService.isTokenBlacklisted(token)) {
-            throw new InvalidTokenException("Access token is blacklisted — please log in again");
+            throw new InvalidTokenException("Access token is expired — please log in again");
         }
 
         String userId = jwtTokenProvider.getSubject(token);
         if (userId == null) {
-            throw new InvalidTokenException("Invalid access token");
+            throw new BadException("User session not found or already logged out");
         }
 
         return token;

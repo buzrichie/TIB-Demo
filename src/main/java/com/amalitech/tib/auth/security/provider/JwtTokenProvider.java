@@ -1,5 +1,7 @@
 package com.amalitech.tib.auth.security.provider;
 
+import com.amalitech.tib.shared.exception.BadException;
+import com.amalitech.tib.shared.exception.InvalidTokenException;
 import io.jsonwebtoken.*;
 import io.jsonwebtoken.security.Keys;
 import jakarta.annotation.PostConstruct;
@@ -30,7 +32,6 @@ public class JwtTokenProvider {
         this.key = Keys.hmacShaKeyFor(secret.getBytes(StandardCharsets.UTF_8));
     }
 
-    // ✅ Generate Access Token with claims
     public String generateAccessToken(String userId, String email, List<String> roles, List<String> permissions) {
         Map<String, Object> claims = new HashMap<>();
         claims.put("roles", roles);
@@ -71,11 +72,20 @@ public class JwtTokenProvider {
     }
 
     public Claims parseClaims(String token) {
-        return Jwts.parserBuilder()
-                .setSigningKey(key)
-                .build()
-                .parseClaimsJws(token)
-                .getBody();
+        try {
+            return Jwts.parserBuilder()
+                    .setSigningKey(key)
+                    .build()
+                    .parseClaimsJws(token)
+                    .getBody();
+        }catch (ExpiredJwtException ex) {
+            throw new InvalidTokenException("Invalid JWT Token Expired");
+        }
+        catch (JwtException e) {
+            throw new InvalidTokenException("Invalid JWT token structure or signature.");
+        } catch (Exception e) {
+            throw new BadException("An unexpected error occurred while processing the token.");
+        }
     }
 
     public String getSubject(String token) {
@@ -103,6 +113,10 @@ public class JwtTokenProvider {
     }
 
     public Instant getExpiration(String token) {
-        return parseClaims(token).getExpiration().toInstant();
+        Instant expiration = parseClaims(token).getExpiration().toInstant();
+        if (Instant.now().isAfter(expiration)) {
+            throw new InvalidTokenException("Token has expired");
+        }
+        return expiration;
     }
 }

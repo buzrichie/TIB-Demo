@@ -31,6 +31,18 @@ public class GlobalExceptionHandler {
         return new ResponseEntity<>(errorResponse, HttpStatus.BAD_REQUEST);
     }
 
+    @ExceptionHandler(EmailAlreadyExistException.class)
+    public ResponseEntity<ApiResponse<String>> handleEmailAlreadyExistException(EmailAlreadyExistException e) {
+        ApiResponse<String> errorResponse = ApiResponse.error(e.getMessage());
+        return new ResponseEntity<>(errorResponse, HttpStatus.CONFLICT);
+    }
+
+     @ExceptionHandler(RefreshTokenRequiredException.class)
+        public ResponseEntity<ApiResponse<String>> handleRefreshTokenRequiredException(RefreshTokenRequiredException e) {
+            ApiResponse<String> errorResponse = ApiResponse.error(e.getMessage());
+            return new ResponseEntity<>(errorResponse, HttpStatus.BAD_REQUEST);
+    }
+
     @ExceptionHandler(AccessDeniedException.class)
     public ResponseEntity<ApiResponse<String>> handleAccessDeniedException(AccessDeniedException e) {
         ApiResponse<String> errorResponse = ApiResponse.error(e.getMessage());
@@ -49,15 +61,13 @@ public class GlobalExceptionHandler {
         return new ResponseEntity<>(errorResponse, HttpStatus.NOT_FOUND);
     }
 
-    // NEW: Handle invalid JWTs or refresh tokens
     @ExceptionHandler(InvalidTokenException.class)
     public ResponseEntity<ApiResponse<String>> handleInvalidTokenException(InvalidTokenException ex) {
         ApiResponse<String> errorResponse = ApiResponse.error(ex.getMessage());
         return new ResponseEntity<>(errorResponse, HttpStatus.UNAUTHORIZED);
     }
 
-    // NEW: Handle revoked refresh tokens
-    @ExceptionHandler(RefreshTokenRevokedException.class)
+    @ExceptionHandler({RefreshTokenRevokedException.class,BadException.class})
     public ResponseEntity<ApiResponse<String>> handleRefreshTokenRevokedException(RefreshTokenRevokedException ex) {
         ApiResponse<String> errorResponse = ApiResponse.error(ex.getMessage());
         return new ResponseEntity<>(errorResponse, HttpStatus.UNAUTHORIZED);
