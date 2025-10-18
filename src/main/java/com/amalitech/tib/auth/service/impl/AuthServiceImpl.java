@@ -138,7 +138,7 @@ public class AuthServiceImpl implements AuthService {
 
     @Override
     @Transactional
-    public RefreshResponse refreshAccessToken(HttpServletRequest request,String refreshTokenValue, HttpServletResponse response) {
+    public RefreshResponse refreshAccessToken(HttpServletRequest request,String refreshTokenValue) {
 
         if (refreshTokenValue == null || refreshTokenValue.isBlank()) {
             throw new InvalidTokenException("Refresh Token is missing from cookie.");
