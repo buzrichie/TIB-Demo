@@ -5,6 +5,7 @@ import com.amalitech.tib.auth.model.RefreshToken;
 import com.amalitech.tib.auth.repository.RefreshTokenRepository;
 import com.amalitech.tib.auth.service.AuthService;
 import com.amalitech.tib.auth.service.TokenBlacklistService;
+import com.amalitech.tib.config.CookieUtils;
 import com.amalitech.tib.shared.exception.*;
 import com.amalitech.tib.auth.mapper.UserMapper;
 import com.amalitech.tib.auth.model.Role;
@@ -16,6 +17,7 @@ import com.amalitech.tib.auth.repository.UserRepository;
 import com.amalitech.tib.auth.enums.UserStatus;
 import com.amalitech.tib.auth.model.User;
 import jakarta.servlet.http.HttpServletRequest;
+import jakarta.servlet.http.HttpServletResponse;
 import jakarta.transaction.Transactional;
 import lombok.AllArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -45,10 +47,11 @@ public class AuthServiceImpl implements AuthService {
     private final TokenBlacklistService tokenBlacklistService;
     private final AuthenticationManager authenticationManager;
     private final CustomUserDetailsService customUserDetailsService;
+    private final CookieUtils cookieUtils;
 
     @Override
     @Transactional
-    public AuthResponse registerUser(RegisterRequest request) {
+    public AuthResponse registerUser(RegisterRequest request, HttpServletResponse response) {
         checkForExistingData(request);
 
         Role defaultRole = roleRepository.findByName("USER")
@@ -72,13 +75,15 @@ public class AuthServiceImpl implements AuthService {
         refreshToken.setIsRevoked(false);
         refreshTokenRepository.save(refreshToken);
 
+        response.addCookie(cookieUtils.createHttpOnlyCookie("refreshToken",refreshToken.getToken(),604799998L));
+
         UserDto userDto = userMapper.toDto(savedUser);
         return new AuthResponse(accessToken, "Bearer", userDto);
     }
 
     @Override
     @Transactional
-    public AuthResponse login(LoginRequest request) {
+    public AuthResponse login(LoginRequest request, HttpServletResponse response) {
         Authentication authentication = authenticationManager.authenticate(
                 new UsernamePasswordAuthenticationToken(
                         request.email(),
@@ -106,6 +111,7 @@ public class AuthServiceImpl implements AuthService {
         user.setLastActive(Instant.now());
         userRepository.save(user);
 
+        response.addCookie(cookieUtils.createHttpOnlyCookie("refreshToken",refreshToken.getToken(),604799998L));
         UserDto userDto = userMapper.toDto(user);
 
         return new AuthResponse(accessToken, "Bearer", userDto);
@@ -113,8 +119,8 @@ public class AuthServiceImpl implements AuthService {
 
     @Override
     @Transactional
-    public void logout(HttpServletRequest request) {
-        String token = validateAccessToken(request);
+    public void logout(String requestToken, HttpServletResponse response) {
+        String token = validateAccessToken(requestToken);
 
         refreshTokenRepository.findByUserId(UUID.fromString(jwtTokenProvider.getSubject(token)))
                 .ifPresent(refreshToken -> {
@@ -126,16 +132,21 @@ public class AuthServiceImpl implements AuthService {
 
         Instant tokenExpiry = jwtTokenProvider.getExpiration(token);
         tokenBlacklistService.blacklistToken(token, tokenExpiry, "logout");
-
+        response.addCookie(cookieUtils.expireCookie());
         SecurityContextHolder.clearContext();
     }
 
     @Override
     @Transactional
-    public RefreshResponse refreshAccessToken(HttpServletRequest request) {
-        String oldAccessToken = validateAccessToken(request);
+    public RefreshResponse refreshAccessToken(HttpServletRequest request,String refreshTokenValue, HttpServletResponse response) {
 
-        String userId = jwtTokenProvider.getSubject(oldAccessToken);
+        if (refreshTokenValue == null || refreshTokenValue.isBlank()) {
+            throw new InvalidTokenException("Refresh Token is missing from cookie.");
+        }
+
+        String validRefreshToken = validateAccessToken(refreshTokenValue);
+
+        String userId = jwtTokenProvider.getSubject(validRefreshToken);
         RefreshToken refreshToken = refreshTokenRepository.findByUserId(UUID.fromString(userId))
                 .orElseThrow(() -> new InvalidTokenException("No refresh token found for this user"));
 
@@ -149,9 +160,6 @@ public class AuthServiceImpl implements AuthService {
 
         User user = refreshToken.getUser();
         String newAccessToken = generateAccessTokenForUser(user);
-
-        Instant expiry = jwtTokenProvider.getExpiration(oldAccessToken);
-        tokenBlacklistService.blacklistToken(oldAccessToken, expiry, "refreshed");
 
         return new RefreshResponse(newAccessToken, "Bearer");
     }
@@ -172,6 +180,19 @@ public class AuthServiceImpl implements AuthService {
                 roles,
                 permissions
         );
+    }
+    private String validateAccessToken(String token) {
+
+        if (tokenBlacklistService.isTokenBlacklisted(token)) {
+            throw new InvalidTokenException("Access token is expired — please log in again");
+        }
+
+        String userId = jwtTokenProvider.getSubject(token);
+        if (userId == null) {
+            throw new BadException("User session not found or already logged out");
+        }
+
+        return token;
     }
 
     private String validateAccessToken(HttpServletRequest request) {
