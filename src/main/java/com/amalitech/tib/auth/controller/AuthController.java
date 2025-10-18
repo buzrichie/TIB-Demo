@@ -57,7 +57,7 @@ public class AuthController {
             summary = "Refresh access token",
             description = "Generates a new access token using the server-stored refresh token for the authenticated user."
     )
-    @PostMapping("/refresh-token")
+    @GetMapping("/refresh-token")
     public ResponseEntity<ApiResponse<RefreshResponse>> refreshAccessToken(HttpServletRequest request) {
         RefreshResponse response = authService.refreshAccessToken(request);
         return ResponseEntity.ok(ApiResponse.success(response, "Access token refreshed successfully"));
