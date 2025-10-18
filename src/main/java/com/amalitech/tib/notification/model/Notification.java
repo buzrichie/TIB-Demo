@@ -3,7 +3,7 @@ package com.amalitech.tib.notification.model;
 import com.amalitech.tib.notification.enums.NotificationStatus;
 import com.amalitech.tib.notification.enums.NotificationType;
 import com.amalitech.tib.shared.util.BaseEntity;
-import com.amalitech.tib.authentication.user.model.User;
+import com.amalitech.tib.auth.model.User;
 import jakarta.persistence.*;
 import lombok.Data;
 

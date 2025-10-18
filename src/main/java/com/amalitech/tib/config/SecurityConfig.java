@@ -1,9 +1,9 @@
 package com.amalitech.tib.config;
 
 
-import com.amalitech.tib.authentication.security.AppAccessDeniedHandler;
-import com.amalitech.tib.authentication.security.JwtAuthenticationEntryPoint;
-import com.amalitech.tib.authentication.security.filter.JwtAuthenticationFilter;
+import com.amalitech.tib.auth.security.AppAccessDeniedHandler;
+import com.amalitech.tib.auth.security.JwtAuthenticationEntryPoint;
+import com.amalitech.tib.auth.security.filter.JwtAuthenticationFilter;
 import lombok.AllArgsConstructor;
 import org.springframework.http.HttpMethod;
 import org.springframework.context.annotation.Bean;

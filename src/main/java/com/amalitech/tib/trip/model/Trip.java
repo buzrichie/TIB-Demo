@@ -7,7 +7,7 @@ import com.amalitech.tib.itinerary.model.Itinerary;
 import com.amalitech.tib.shared.util.BaseEntity;
 import com.amalitech.tib.itinerary.model.Transport;
 import com.amalitech.tib.trip.enums.TripStatus;
-import com.amalitech.tib.authentication.user.model.User;
+import com.amalitech.tib.auth.model.User;
 import jakarta.persistence.*;
 import lombok.Data;
 

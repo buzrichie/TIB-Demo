@@ -1,7 +1,7 @@
 package com.amalitech.tib.admin.model;
 
 import com.amalitech.tib.shared.util.BaseEntity;
-import com.amalitech.tib.authentication.user.model.User;
+import com.amalitech.tib.auth.model.User;
 import jakarta.persistence.*;
 
 @Entity

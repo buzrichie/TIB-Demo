@@ -1,10 +1,10 @@
 package com.amalitech.tib.config.initializer;
 
-import com.amalitech.tib.authentication.user.enums.Permission;
-import com.amalitech.tib.authentication.user.dto.CreateRoleDto;
-import com.amalitech.tib.authentication.user.mapper.RoleMapper;
-import com.amalitech.tib.authentication.user.model.Role;
-import com.amalitech.tib.authentication.user.repository.RoleRepository;
+import com.amalitech.tib.auth.enums.Permission;
+import com.amalitech.tib.auth.dto.CreateRoleDto;
+import com.amalitech.tib.auth.mapper.RoleMapper;
+import com.amalitech.tib.auth.model.Role;
+import com.amalitech.tib.auth.repository.RoleRepository;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.boot.CommandLineRunner;
