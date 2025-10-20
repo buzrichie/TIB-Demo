@@ -1,9 +1,9 @@
 package com.amalitech.tib.auth.controller;
 
-import com.amalitech.tib.auth.dto.AuthResponse;
-import com.amalitech.tib.auth.dto.LoginRequest;
-import com.amalitech.tib.auth.dto.RefreshResponse;
-import com.amalitech.tib.auth.dto.RegisterRequest;
+import com.amalitech.tib.auth.dto.AuthResponseDto;
+import com.amalitech.tib.auth.dto.LoginRequestDto;
+import com.amalitech.tib.auth.dto.RefreshResponseDto;
+import com.amalitech.tib.auth.dto.RegisterRequestDto;
 import com.amalitech.tib.auth.service.AuthService;
 import com.amalitech.tib.shared.util.ApiResponse;
 import io.swagger.v3.oas.annotations.Operation;
@@ -29,8 +29,8 @@ public class AuthController {
             description = "Creates a new user profile with provided details and assigns the default USER role."
     )
     @PostMapping("/register")
-    public ResponseEntity<ApiResponse<AuthResponse>> registerUser(@Valid @RequestBody RegisterRequest request, HttpServletResponse headResponse) {
-        AuthResponse response = authService.registerUser(request, headResponse);
+    public ResponseEntity<ApiResponse<AuthResponseDto>> registerUser(@Valid @RequestBody RegisterRequestDto request, HttpServletResponse headResponse) {
+        AuthResponseDto response = authService.registerUser(request, headResponse);
         return ResponseEntity.ok(ApiResponse.success(response, "User registered successfully"));
     }
 
@@ -39,8 +39,8 @@ public class AuthController {
             description = "Validates user credentials and returns an access token (refresh token is stored server-side)."
     )
     @PostMapping("/login")
-    public ResponseEntity<ApiResponse<AuthResponse>> loginUser(@Valid @RequestBody LoginRequest request,HttpServletResponse headResponse) {
-        AuthResponse response = authService.login(request, headResponse);
+    public ResponseEntity<ApiResponse<AuthResponseDto>> loginUser(@Valid @RequestBody LoginRequestDto request, HttpServletResponse headResponse) {
+        AuthResponseDto response = authService.login(request, headResponse);
         return ResponseEntity.ok(ApiResponse.success(response, "User logged in successfully"));
     }
 
@@ -59,9 +59,9 @@ public class AuthController {
             description = "Generates a new access token using the server-stored refresh token for the authenticated user."
     )
     @GetMapping("/refresh-token")
-    public ResponseEntity<ApiResponse<RefreshResponse>> refreshAccessToken(HttpServletRequest request,@CookieValue(name = "refreshToken", required = false) String refreshTokenValue
+    public ResponseEntity<ApiResponse<RefreshResponseDto>> refreshAccessToken(HttpServletRequest request, @CookieValue(name = "refreshToken", required = false) String refreshTokenValue
                                                                            ) {
-        RefreshResponse response = authService.refreshAccessToken(request, refreshTokenValue);
+        RefreshResponseDto response = authService.refreshAccessToken(request, refreshTokenValue);
         return ResponseEntity.ok(ApiResponse.success(response, "Access token refreshed successfully"));
     }
 

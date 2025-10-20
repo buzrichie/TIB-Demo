@@ -1,6 +1,6 @@
 package com.amalitech.tib.auth.dto;
 
-public record AuthResponse(
+public record AuthResponseDto(
         String accessToken,
         String tokenType,
         UserDto user

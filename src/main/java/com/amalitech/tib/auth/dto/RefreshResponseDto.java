@@ -1,6 +1,6 @@
 package com.amalitech.tib.auth.dto;
 
-public record RefreshResponse(
+public record RefreshResponseDto(
         String accessToken,
         String tokenType
 ) {

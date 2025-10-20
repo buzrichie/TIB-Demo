@@ -22,7 +22,6 @@ import jakarta.transaction.Transactional;
 import lombok.AllArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.security.authentication.AuthenticationManager;
-import org.springframework.security.authentication.BadCredentialsException;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.context.SecurityContextHolder;
@@ -51,7 +50,7 @@ public class AuthServiceImpl implements AuthService {
 
     @Override
     @Transactional
-    public AuthResponse registerUser(RegisterRequest request, HttpServletResponse response) {
+    public AuthResponseDto registerUser(RegisterRequestDto request, HttpServletResponse response) {
         checkForExistingData(request);
 
         Role defaultRole = roleRepository.findByName("USER")
@@ -78,12 +77,12 @@ public class AuthServiceImpl implements AuthService {
         response.addCookie(cookieUtils.createHttpOnlyCookie("refreshToken",refreshToken.getToken(),604799998L));
 
         UserDto userDto = userMapper.toDto(savedUser);
-        return new AuthResponse(accessToken, "Bearer", userDto);
+        return new AuthResponseDto(accessToken, "Bearer", userDto);
     }
 
     @Override
     @Transactional
-    public AuthResponse login(LoginRequest request, HttpServletResponse response) {
+    public AuthResponseDto login(LoginRequestDto request, HttpServletResponse response) {
         Authentication authentication = authenticationManager.authenticate(
                 new UsernamePasswordAuthenticationToken(
                         request.email(),
@@ -114,7 +113,7 @@ public class AuthServiceImpl implements AuthService {
         response.addCookie(cookieUtils.createHttpOnlyCookie("refreshToken",refreshToken.getToken(),604799998L));
         UserDto userDto = userMapper.toDto(user);
 
-        return new AuthResponse(accessToken, "Bearer", userDto);
+        return new AuthResponseDto(accessToken, "Bearer", userDto);
     }
 
     @Override
@@ -138,7 +137,7 @@ public class AuthServiceImpl implements AuthService {
 
     @Override
     @Transactional
-    public RefreshResponse refreshAccessToken(HttpServletRequest request,String refreshTokenValue) {
+    public RefreshResponseDto refreshAccessToken(HttpServletRequest request, String refreshTokenValue) {
 
         if (refreshTokenValue == null || refreshTokenValue.isBlank()) {
             throw new InvalidTokenException("Refresh Token is missing from cookie.");
@@ -161,7 +160,7 @@ public class AuthServiceImpl implements AuthService {
         User user = refreshToken.getUser();
         String newAccessToken = generateAccessTokenForUser(user);
 
-        return new RefreshResponse(newAccessToken, "Bearer");
+        return new RefreshResponseDto(newAccessToken, "Bearer");
     }
 
     private String generateAccessTokenForUser(User user) {
@@ -215,7 +214,7 @@ public class AuthServiceImpl implements AuthService {
         return token;
     }
 
-    private void checkForExistingData(RegisterRequest request) {
+    private void checkForExistingData(RegisterRequestDto request) {
         if (userRepository.existsByEmail(request.email())) {
             throw new EmailAlreadyExistException("Email already exists");
         }

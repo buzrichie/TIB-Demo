@@ -46,8 +46,7 @@ public class AccountPreferences extends BaseEntity {
     @Column(name = "default_currency")
     private String defaultCurrency;
 
-    @Column(name = "travel_policy", columnDefinition = "TEXT")
-    private String travelPolicy;
+    @Lob private String travelPolicy;
 
     @Column(name = "emergency_contact_name")
     private String emergencyContactName;
