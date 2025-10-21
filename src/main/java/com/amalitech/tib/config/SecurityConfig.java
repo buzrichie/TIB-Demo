@@ -1,12 +1,10 @@
 package com.amalitech.tib.config;
 
 
-import com.amalitech.tib.security.AppAccessDeniedHandler;
-import com.amalitech.tib.security.JwtAuthenticationEntryPoint;
-import com.amalitech.tib.security.filter.JwtAuthenticationFilter;
+import com.amalitech.tib.auth.security.AppAccessDeniedHandler;
+import com.amalitech.tib.auth.security.JwtAuthenticationEntryPoint;
+import com.amalitech.tib.auth.security.filter.JwtAuthenticationFilter;
 import lombok.AllArgsConstructor;
-import lombok.NoArgsConstructor;
-import org.springframework.beans.factory.annotation.Value;
 import org.springframework.http.HttpMethod;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
@@ -22,10 +20,7 @@ import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.security.web.SecurityFilterChain;
 import org.springframework.security.web.authentication.UsernamePasswordAuthenticationFilter;
-import org.springframework.web.cors.CorsConfiguration;
 import org.springframework.web.cors.CorsConfigurationSource;
-
-import java.util.List;
 
 @Configuration
 @EnableWebSecurity

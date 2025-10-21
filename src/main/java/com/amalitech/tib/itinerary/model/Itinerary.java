@@ -1,8 +1,7 @@
 package com.amalitech.tib.itinerary.model;
 
-import com.amalitech.tib.shared.BaseEntity;
+import com.amalitech.tib.shared.util.BaseEntity;
 import com.amalitech.tib.trip.model.Trip;
-import com.amalitech.tib.activity.model.Activity;
 import jakarta.persistence.*;
 import lombok.Data;
 
