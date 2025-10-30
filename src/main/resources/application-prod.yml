@@ -1,0 +1,3 @@
+aws:
+  getEndpoint: cloudfront
+  distributionId: ${AWS_CLOUDFRONT_DISTRIBUTION_ID}
