@@ -1,0 +1,37 @@
+# Environment files
+docker/env/
+*.env
+.env*
+
+# Git
+.git
+.gitignore
+
+# IDE
+.vscode/
+.idea/
+*.iml
+
+# Build artifacts
+target/
+*.jar
+*.war
+
+# Documentation
+README.md
+docs/
+
+# CI/CD
+.github/
+
+# Docker files
+docker-compose*.yml
+Dockerfile*
+
+# Logs
+*.log
+logs/
+
+# OS
+.DS_Store
+Thumbs.db

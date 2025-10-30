@@ -1,0 +1,20 @@
+package com.amalitech.tib.user.model;
+
+import com.amalitech.tib.util.BaseEntity;
+import jakarta.persistence.Column;
+import jakarta.persistence.Entity;
+import jakarta.persistence.OneToOne;
+import lombok.Data;
+
+@Entity
+@Data
+public class RefreshToken extends BaseEntity {
+
+  @OneToOne private User user;
+
+  @Column(nullable = false, unique = true)
+  private String token;
+
+  @Column(name = "is_revoked", nullable = false)
+  private Boolean isRevoked = false;
+}
